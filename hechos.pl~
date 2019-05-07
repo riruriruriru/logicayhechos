@@ -93,7 +93,7 @@ list_min([L|Ls], Min) :- foldl(num_num_min, Ls, L, Min).
 num_num_min(X, Y, Min) :- Min is min(X, Y).
 % TT: tamanio taza, TP: tipo preparacion, TC: tipo cafe, E: estacion, R:
 % salida
-prepararCafe(TT,TP,TC,E,R):- esTamanio(TT),estacionDelAnio(E),esCafe(TP),granoCafe(TC), preparacionTaza2(TP,TT,HH),tiempoPreparacion(E,HH2),intensidadCafeTamanio(TC,TP,HH1) , concatenarListas([HH,[HH1],[HH2]],R).
+prepararCafe(TT,TP,TC,E,R):- esTamanio(TT),estacionDelAnio(E),esCafe(TP),granoCafe(TC), preparacionTaza2(TP,TT,HH),tiempoPreparacion(E,HH2),intensidadCafeTamanio(TC,TP,TT,HH1) , concatenarListas([HH,[HH1],[HH2]],R).
 % TT: tamanio taza, TP: tipo preparacion, TC: tipo cafe, E: estacion,
 % CC: cantidad cafe, CL: cantidad leche, CA: cantidad agua
 cantidadTazas(TT,TP,TC,E,CC,CL,CA,[CANTIDAD,TIEMPO]):-
@@ -106,7 +106,8 @@ cantidadTazas(TT,TP,TC,E,CC,CL,CA,[CANTIDAD,TIEMPO]):-
  TAZASSEGUNCAFE is CC/R1,
  TAZASSEGUNAGUA is CA/R2,
  TAZASSEGUNLECHE is CL/R3,
- list_min([TAZASSEGUNCAFE,TAZASSEGUNAGUA,TAZASSEGUNLECHE],CANTIDAD),
+ list_min([TAZASSEGUNCAFE,TAZASSEGUNAGUA,TAZASSEGUNLECHE],CANTIDADPARCIAL),
+ CANTIDAD = floor(CANTIDADPARCIAL,CANTIDAD),
  tiempoPreparacion(E,T),
  TIEMPO is CANTIDAD*T;
  granoCafe(TC),
@@ -116,7 +117,8 @@ cantidadTazas(TT,TP,TC,E,CC,CL,CA,[CANTIDAD,TIEMPO]):-
  prepararCafe(TT,TP,TC,E,[R1,R2,R3,R4,R5,R6]),
  TAZASSEGUNCAFE is CC/R1,
  TAZASSEGUNAGUA is CA/R2,
- list_min([TAZASSEGUNCAFE,TAZASSEGUNAGUA],CANTIDAD),
+ list_min([TAZASSEGUNCAFE,TAZASSEGUNAGUA],CANTIDADPARCIAL),
+ CANTIDAD = floor(CANTIDADPARCIAL,CANTIDAD),
  tiempoPreparacion(E,T),
  TIEMPO is T*CANTIDAD.
 %I: instalada, CA: cantidad agua, CF: cantidad cafe, CL: cantidad leche
