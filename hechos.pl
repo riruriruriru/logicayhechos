@@ -20,12 +20,29 @@ preparacion(capuccino,7,150,19,0).
 preparacion(latte, 7,90,9,0).
 preparacion(mokaccino,7,100,9,3).
 instalada(si).
-% P: preparacion, TT: tamanio taza, MEDIDAS: resultado, medidas pra el
+esTamanio(pequenio).
+esTamanio(mediano).
+esTamanio(grande).
+tamanioTaza(pequenio, 150).
+tamanioTaza(mediano, 225).
+tamanioTaza(grande, 300).
+estacionDelAnio(primavera).
+estacionDelAnio(otonio).
+estacionDelAnio(invierno).
+estacionDelAnio(verano).
+%Tiempo de preparacion en segundos
+tiempoPreparacion(verano,60).
+tiempoPreparacion(otonio,90).
+tiempoPreparacion(primavera,90).
+tiempoPreparacion(invierno,120).
+
+%P: preparacion, TT: tamanio taza, MEDIDAS: resultado, medidas pra el
 % tamanio de taza ingresado uwu
 %
 evaluate(X,R):- R is X.
 multiplicar(V,[R1,R2,R3,R4]):- R1 = R1*(V/R2),R2 = R2*(V/R2),R3 = R3*(V/R2),R4 = R4*(V/R2).
-preparacionTaza2(P, TT, [R11,R22,R33,R44]):- tamanioTaza(TT,TAMANIO),preparacion(P,R1,R2,R3,R4),  R11 is R1*(TAMANIO/R2), R22 is R2*(TAMANIO/R2), R33 is R3*(TAMANIO/R2), R44 is R4*(TAMANIO/R2).
+%P: tipo preparacion, TT: tamanio taza
+preparacionTaza2(P, TT, [R11,R22,R33,R44]):- esTamanio(TT),tamanioTaza(TT,TAMANIO),preparacion(P,R1,R2,R3,R4),  R11 is R1*(TAMANIO/R2), R22 is R2*(TAMANIO/R2), R33 is R3*(TAMANIO/R2), R44 is R4*(TAMANIO/R2).
 preparacionTaza(espresso, grande, [70,300,0,0]).
 preparacionTaza(espresso, medio, [52.5,225,0,0]).
 preparacionTaza(espresso, pequenio, [35,150,0,0]).
@@ -51,19 +68,6 @@ preparacionTaza(mokaccino, medio, [15.75,225,20.25,6.75]).
 preparacionTaza(mokaccino, pequenio, [10.5,150,13.5,4.5]).
 
 %GRANDE: 300ml de agua, MEDIO: 225ml de agua, PEQUEÑO: 150ml de agua
-%buenaPreparacion(A,B,C):-
-tamanioTaza(pequenio, 150).
-tamanioTaza(mediano, 225).
-tamanioTaza(grande, 300).
-estacionDelAnio(primavera).
-estacionDelAnio(otonio).
-estacionDelAnio(invierno).
-estacionDelAnio(verano).
-%Tiempo de preparacion en segundos
-tiempoPreparacion(verano,60).
-tiempoPreparacion(otonio,90).
-tiempoPreparacion(primavera,90).
-tiempoPreparacion(invierno,120).
 % TT: tamanio taza, TP: tipo preparacion, TC: tipo cafe, E_ estacion del
 % año, S: salida
 flatten2([a, [b,c], [[d],[],[e]]], R).
@@ -87,12 +91,16 @@ concatenarListasR([X],X). %Hecho
 concatenarListasR([X,Y|Xs],Respuesta):- append(X,Y,Aux), concatenarListasR([Aux|Xs],Respuesta).
 list_min([L|Ls], Min) :- foldl(num_num_min, Ls, L, Min).
 num_num_min(X, Y, Min) :- Min is min(X, Y).
-prepararCafe(TT,TP,TC,E,R):- preparacionTaza2(TP,TT,HH),tiempoPreparacion(E,HH2),intensidad(TC,HH1), concatenarListas([HH,[HH1],[HH2]],R).
+% TT: tamanio taza, TP: tipo preparacion, TC: tipo cafe, E: estacion, R:
+% salida
+prepararCafe(TT,TP,TC,E,R):- esTamanio(TT),estacionDelAnio(E),esCafe(TP),granoCafe(TC), preparacionTaza2(TP,TT,HH),tiempoPreparacion(E,HH2),intensidadCafeTamanio(TC,TP,TT,HH1) , concatenarListas([HH,[HH1],[HH2]],R).
 % TT: tamanio taza, TP: tipo preparacion, TC: tipo cafe, E: estacion,
-% CC: cantidad cafe, CL: cantidad leche, CA: cantidad agua, S: salida
-% (resultado)
-isMoreThanZero(A):- A>0.
-cantidadTazas(TT,TP,TC,E,CC,CL,CA,[CANTIDAD,TIEMPO, R3]):-
+% CC: cantidad cafe, CL: cantidad leche, CA: cantidad agua
+cantidadTazas(TT,TP,TC,E,CC,CL,CA,[CANTIDAD,TIEMPO]):-
+ granoCafe(TC),
+ esTamanio(TT),
+ esCafe(TP),
+ estacionDelAnio(E),
  prepararCafe(TT,TP,TC,E,[R1,R2,R3,R4,R5,R6]),
  compare(>,R3,0),
  TAZASSEGUNCAFE is CC/R1,
@@ -101,16 +109,25 @@ cantidadTazas(TT,TP,TC,E,CC,CL,CA,[CANTIDAD,TIEMPO, R3]):-
  list_min([TAZASSEGUNCAFE,TAZASSEGUNAGUA,TAZASSEGUNLECHE],CANTIDAD),
  tiempoPreparacion(E,T),
  TIEMPO is CANTIDAD*T;
+ granoCafe(TC),
+ esTamanio(TT),
+ esCafe(TP),
+ estacionDelAnio(E),
  prepararCafe(TT,TP,TC,E,[R1,R2,R3,R4,R5,R6]),
  TAZASSEGUNCAFE is CC/R1,
  TAZASSEGUNAGUA is CA/R2,
  list_min([TAZASSEGUNCAFE,TAZASSEGUNAGUA],CANTIDAD),
  tiempoPreparacion(E,T),
  TIEMPO is T*CANTIDAD.
-
 %I: instalada, CA: cantidad agua, CF: cantidad cafe, CL: cantidad leche
 sePuedeUsar(I,CA,CF,CL):- instalada(I),CA>=150,CF>=30,CL>=30.
-intensidadCafe(TC,TP,S):- intensidad(TC,S).
+% CA: cantidad agua, CL: cantidad leche, IO: intensidad original, IN:
+% intensidad nueva
+modificarIntensidad(CA,CL,IO,IN):- IO==suave, IN=IO; CA>=100, CL > 0, IO == intenso, IN =medio; CA>=100,CL>0, IO == medio, IN = suave; CA < 100,  IN = IO;CL=:=0, IN = IO;CA<100,CL=:=0,IN=IO.
+
+%TC: tipo cafe, TP: tipo preparacion, I: intensidad
+intensidadCafe(TC,TP,I):- intensidad(TC,S),preparacion(TP,_,CA,CL,_),modificarIntensidad(CA,CL,S,I).
+intensidadCafeTamanio(TC,TP,TT,I):- intensidad(TC,S),preparacionTaza2(TP,TT,[_,CA,CL,_]),modificarIntensidad(CA,CL,S,I).
 
 
 
