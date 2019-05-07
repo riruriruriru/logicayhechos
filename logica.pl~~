@@ -1,0 +1,75 @@
+esCafe(espresso).
+esCafe(americano).
+esCafe(latte).
+esCafe(mokaccino).
+%esCafe(macchiato).
+esCafe(capuccino).
+esCafe(cortado).
+granoCafe(arabica).
+granoCafe(robusta).
+granoCafe(combinado).
+granoCafe(descafeinado).
+intensidad(arabica, suave).
+intensidad(robusta, intenso).
+intensidad(combinado, medio).
+intensidad(descafeinado, suave).
+preparacion(espresso, 7,30,0,0). %nombre, cafe, agua, leche, chocolate
+preparacion(americano, 7,60,0,0).
+preparacion(cortado, 7,50,3,0).
+preparacion(capuccino,7,150,19,0).
+preparacion(latte, 7,90,9,0).
+preparacion(mokaccino,7,100,9,3).
+
+preparacionTaza(espresso, grande, [70,300,0,0]).
+preparacionTaza(espresso, medio, [52.5,225,0,0]).
+preparacionTaza(espresso, pequenio, [35,150,0,0]).
+
+preparacionTaza(americano, grande, [35,300,0,0]).
+preparacionTaza(americano, medio, [26.25,225,0,0]).
+preparacionTaza(americano, pequenio, [17.5,150,0,0]).
+
+preparacionTaza(cortado, grande, [42,300,18,0]).
+preparacionTaza(cortado, medio, [31.5,225,13.5,0]).
+preparacionTaza(cortado, pequenio, [21,150,9,0]).
+
+preparacionTaza(capuccino, grande, [14,300,38,0]).
+preparacionTaza(capuccino, medio, [10.5,225,28.5,0]).
+preparacionTaza(capuccino, pequenio, [7,150,19,0]).
+
+preparacionTaza(latte, grande, [23.4,300,30,0]).
+preparacionTaza(latte, medio, [17.5,225,22.5,0]).
+preparacionTaza(latte, pequenio, [11.7,150,15,0]).
+
+preparacionTaza(mokaccino, grande, [21,300,27,9]).
+preparacionTaza(mokaccino, medio, [15.75,225,20.25,6.75]).
+preparacionTaza(mokaccino, pequenio, [10.5,150,13.5,4.5]).
+
+%GRANDE: 300ml de agua, MEDIO: 225ml de agua, PEQUEÑO: 150ml de agua
+%buenaPreparacion(A,B,C):-
+tamanioTaza(pequenio).
+tamanioTaza(mediano).
+tamanioTaza(grande).
+estacionDelAnio(primavera).
+estacionDelAnio(otonio).
+estacionDelAnio(invierno).
+estacionDelAnio(verano).
+%Tiempo de preparacion en segundos
+tiempoPreparacion(verano,60).
+tiempoPreparacion(otonio,90).
+tiempoPreparacion(primavera,90).
+tiempoPreparacion(invierno,120).
+% TT: tamanio taza, TP: tipo preparacion, TC: tipo cafe, E_ estacion del
+% año, S: salida
+flatten2([a, [b,c], [[d],[],[e]]], R).
+prepararCafe(TT,TP,TC,E,R):- preparacionTaza(TP,TT,H),tiempoPreparacion(E,H2),intensidad(TC,H1), flatten(H,[H2],[H1],R).
+
+
+
+
+
+
+
+
+
+
+
