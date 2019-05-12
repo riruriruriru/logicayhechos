@@ -124,18 +124,21 @@ prepararCafe(TT,TP,TC,E,R):-
 % cantidad de tazas resultantes, además del tiempo de preparación total
 % de estas
 %TT:tamanio taza, TP: tipo preparacion, TC: tipo cafe, E:
-% estacion, CC: cantidad cafe, CL: cantidad leche, CA: cantidad agua
-cantidadTazas(TT,TP,TC,E,CC,CL,CA,[CANTIDAD,TIEMPO]):-
+% estacion, CC: cantidad cafe, CL: cantidad leche, CA: cantidad agua,
+% CCH: cantidad chocolate
+cantidadTazas(TT,TP,TC,E,CC,CL,CA,CCH,[CANTIDAD,TIEMPO]):-
     granoCafe(TC), %se comprueba que todos los datos sean válidos
     esTamanio(TT),
     esCafe(TP),
     estacionDelAnio(E),
     prepararCafe(TT,TP,TC,E,[R1,R2,R3,R4,R5,R6]), %se prepara una taza de café con los parámetros ingresados
     compare(>,R3,0), %si la preparación originalmente usa leche, se continúa normalmente
+    compare(>,R4,0), %chocolate mayor a 0
     TAZASSEGUNCAFE is CC/R1, %se calcula la cantidad de tazas según la cantidad de café ingresada por argumento
     TAZASSEGUNAGUA is CA/R2, %se calcula la cantidad de tazas según la cantidad de agua ingresada por argumento
     TAZASSEGUNLECHE is CL/R3,%mismo caso que anteriores, pero según la leche
-    list_min([TAZASSEGUNCAFE,TAZASSEGUNAGUA,TAZASSEGUNLECHE],CANTIDADPARCIAL), %se busca el mínimo de estos tres valores, el cual será la cantidad de tazas
+    TAZASSEGUNCHOCOLATE is CCH/R4,%mismo caso que anteriores, segun chocolate
+    list_min([TAZASSEGUNCAFE,TAZASSEGUNAGUA,TAZASSEGUNLECHE,TAZASSEGUNCHOCOLATE],CANTIDADPARCIAL), %se busca el mínimo de estos tres valores, el cual será la cantidad de tazas
     floor(CANTIDADPARCIAL,CANTIDAD), %se redondea hacia abajo la cantidad de tazas resultante
     tiempoPreparacion(E,T), %se obtiene el tiempo de preparación por taza según estación
     TIEMPO is CANTIDAD*T; %se multiplica la cantidad de tazas por el tiempo para obtener el tiempo total
@@ -144,9 +147,39 @@ cantidadTazas(TT,TP,TC,E,CC,CL,CA,[CANTIDAD,TIEMPO]):-
     esCafe(TP),
     estacionDelAnio(E),
     prepararCafe(TT,TP,TC,E,[R1,R2,R3,R4,R5,R6]),
+    R3=:=0,%leche y chocolate igual a 0
+    R4=:=0,
     TAZASSEGUNCAFE is CC/R1,%debido a que este tipo de preparacion no utiliza leche, la cantidad de esta ingresada por argumento no se considera
     TAZASSEGUNAGUA is CA/R2,
     list_min([TAZASSEGUNCAFE,TAZASSEGUNAGUA],CANTIDADPARCIAL),
+    floor(CANTIDADPARCIAL,CANTIDAD),
+    tiempoPreparacion(E,T),
+    TIEMPO is T*CANTIDAD;%se obtiene la cantidad de tazas y tiempo total de la misma forma que en el caso anterior
+     granoCafe(TC),%se tiene una disyuncion, por lo tanto se entra a este caso solo si el tipo de preparacion ingresado no utiliza leche
+    esTamanio(TT),
+    esCafe(TP),
+    estacionDelAnio(E),
+    prepararCafe(TT,TP,TC,E,[R1,R2,R3,R4,R5,R6]),
+    R3=:=0,%leche igual a 0, chocolate distinto de 0
+    compare(>,R4,0),
+    TAZASSEGUNCAFE is CC/R1,%debido a que este tipo de preparacion no utiliza leche, la cantidad de esta ingresada por argumento no se considera
+    TAZASSEGUNAGUA is CA/R2,
+    TAZASSEGUNCHOCOLATE is CCH/R4,
+    list_min([TAZASSEGUNCAFE,TAZASSEGUNAGUA,TAZASSEGUNCHOCOLATE],CANTIDADPARCIAL),
+    floor(CANTIDADPARCIAL,CANTIDAD),
+    tiempoPreparacion(E,T),
+    TIEMPO is T*CANTIDAD;%se obtiene la cantidad de tazas y tiempo total de la misma forma que en el caso anterior
+    granoCafe(TC),%se tiene una disyuncion, por lo tanto se entra a este caso solo si el tipo de preparacion ingresado no utiliza leche
+    esTamanio(TT),
+    esCafe(TP),
+    estacionDelAnio(E),
+    prepararCafe(TT,TP,TC,E,[R1,R2,R3,R4,R5,R6]),
+    compare(>,R3,0),%leche distinto de 0, chocolate igual a 0
+    R4=:=0,
+    TAZASSEGUNCAFE is CC/R1,%debido a que este tipo de preparacion no utiliza leche, la cantidad de esta ingresada por argumento no se considera
+    TAZASSEGUNAGUA is CA/R2,
+    TAZASSEGUNLECHE is CL/R3,
+    list_min([TAZASSEGUNCAFE,TAZASSEGUNAGUA,TAZASSEGUNLECHE],CANTIDADPARCIAL),
     floor(CANTIDADPARCIAL,CANTIDAD),
     tiempoPreparacion(E,T),
     TIEMPO is T*CANTIDAD.%se obtiene la cantidad de tazas y tiempo total de la misma forma que en el caso anterior
